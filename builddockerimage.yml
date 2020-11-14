@@ -1,41 +1,38 @@
 version: 2.1
 
 description: |
-  Orb for using Cake with OctopusSamples.
+  Orb for building a Docker image
 
-executors:
-  cake-executor:
-    docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.1.607-stretch
-jobs:
+commands:
   build:
-    executor: cake-executor
+    machine: true
+
     parameters:
-      cake_version:
-        default: "0.35.0"
+      dockeruser:
         type: string
-      package_version:
-        default: "$PACKAGE_VERSION"
+      dockerrepo:
         type: string
-      publish_path:
-        default: "publish"
+      herokurepo:
         type: string
-      target:
-        default: "Publish"
+      herokuproctype:
+        default: "web"
         type: string
+
     steps:
       - checkout
+
       - run:
-          name: Install Cake
-          command: |
-            export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet tool install -g Cake.Tool --version << parameters.cake_version >>
+         name: Build Docker image
+         command: docker build -t hyperbotauthor/hyperbot .
+      
       - run:
-          name: Build
+          name: Push to DockerHub
           command: |
-            export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet cake build.cake --target="<< parameters.target >>" --packageVersion="<< parameters.package_version >>"
-      - persist_to_workspace:
-          root: << parameters.publish_path >>
-          paths:
-            - "*"
+            echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
+            docker push hyperbotauthor/hyperbot
+      - run:
+          name: Push to Heroku
+          command: |
+            echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
+            docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokurepo >>/<< parameters.herokuproctype >>
+            docker push registry.heroku.com/hyperbotauthor/<< parameters.herokurepo >>/<< parameters.herokuproctype >>
