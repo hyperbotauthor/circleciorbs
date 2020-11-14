@@ -42,7 +42,7 @@ commands:
       - run:
           name: Push to Heroku
           command: |
-            if [ << parameters.pushdocker >> ] && ! [ parameters.herokuapp == "" ] ; then
+            if [ << parameters.pushheroku >> ] && ! [ parameters.herokuapp == "" ] ; then
               echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
               docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
               docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
