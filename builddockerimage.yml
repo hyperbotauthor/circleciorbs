@@ -10,7 +10,7 @@ commands:
         type: string
       dockerrepo:
         type: string
-      herokurepo:
+      herokuapp:
         type: string
       herokuproctype:
         default: "web"
@@ -21,16 +21,16 @@ commands:
 
       - run:
          name: Build Docker image
-         command: docker build -t hyperbotauthor/hyperbot .
+         command: docker build -t << parameters.dockeruser >>/<< parameters.dockerrepo >> .
       
       - run:
           name: Push to DockerHub
           command: |
             echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
-            docker push hyperbotauthor/hyperbot
+            docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
       - run:
           name: Push to Heroku
           command: |
             echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
-            docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokurepo >>/<< parameters.herokuproctype >>
-            docker push registry.heroku.com/hyperbotauthor/<< parameters.herokurepo >>/<< parameters.herokuproctype >>
+            docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
+            docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
