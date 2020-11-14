@@ -20,7 +20,7 @@ https://app.circleci.com/settings/user/tokens
 curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash
 ```
 
-## Create CirleCI organization
+## CircleCI CLI - Create CirleCI organization
 
 ```
 circleci namespace create hyperchessbotauthor github hyperchessbotauthor
@@ -32,13 +32,13 @@ CircleCI Organization page ( can be selected from users ) -> Security -> check A
 
 https://app.circleci.com/settings/organization/github/hyperchessbotauthor/security
 
-## CircleCI create orb
+## CircleCI CLI - Create orb
 
 ```
 circleci orb create hyperchessbotauthor/builddockerimage
 ```
 
-## CircleCI publish orb
+## CircleCI CLI - Publish orb
 
 ```
 circleci orb publish orb.yml hyperchessbotauthor/builddockerimage@1.0.0 --token $CIRCLECI_API_TOKEN
