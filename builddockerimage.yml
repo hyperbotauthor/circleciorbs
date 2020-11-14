@@ -1,0 +1,41 @@
+version: 2.1
+
+description: |
+  Orb for using Cake with OctopusSamples.
+
+executors:
+  cake-executor:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.1.607-stretch
+jobs:
+  build:
+    executor: cake-executor
+    parameters:
+      cake_version:
+        default: "0.35.0"
+        type: string
+      package_version:
+        default: "$PACKAGE_VERSION"
+        type: string
+      publish_path:
+        default: "publish"
+        type: string
+      target:
+        default: "Publish"
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Install Cake
+          command: |
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install -g Cake.Tool --version << parameters.cake_version >>
+      - run:
+          name: Build
+          command: |
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet cake build.cake --target="<< parameters.target >>" --packageVersion="<< parameters.package_version >>"
+      - persist_to_workspace:
+          root: << parameters.publish_path >>
+          paths:
+            - "*"
