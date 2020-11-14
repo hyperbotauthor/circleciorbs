@@ -28,25 +28,25 @@ commands:
 
       - run:
          name: Build Docker image
-         command: docker build -t << parameters.dockeruser >>/<< parameters.dockerrepo >> .
+         command: |
+           docker build -t << parameters.dockeruser >>/<< parameters.dockerrepo >> .
       
       - when:
           condition:
-            - equal: [ << parameters.pushdocker >>, true ]
+            equal: [ << parameters.pushdocker >>, true ]
           steps:
             - run:
                 name: Push to DockerHub
                 command: |      
                   echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
                   docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
+
       - when:
           condition:
-            - equal:
-                - and:
-                    - equal: [ << parameters.pushheroku >>, true ]
-                    - not:
-                        - equal:
-                            [ << parameters.herokuapp >>, "" ]
+            and:
+              - equal: [ << parameters.pushheroku >>, true ]
+              - not:
+                  equal: [ << parameters.herokuapp >>, "" ]
           steps:
             - run:
                 name: Push to Heroku
