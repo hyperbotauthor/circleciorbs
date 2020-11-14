@@ -11,10 +11,17 @@ commands:
       dockerrepo:
         type: string
       herokuapp:
+        default: ""
         type: string
       herokuproctype:
         default: "web"
         type: string
+      pushdocker:
+        default: true
+        type: boolean
+      pushheroku:
+        default: true
+        type: boolean
 
     steps:
       - checkout
@@ -26,11 +33,19 @@ commands:
       - run:
           name: Push to DockerHub
           command: |
-            echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
-            docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
+            if [ << parameters.pushdocker >> ] ; then
+              echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
+              docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
+            else
+              echo "push to Docker Hub skipped"
+            fi
       - run:
           name: Push to Heroku
           command: |
-            echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
-            docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
-            docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
+            if [ << parameters.pushdocker >> ] && ! [ parameters.herokuapp == "" ] ; then
+              echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
+              docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
+              docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
+            else
+              echo "push to Heroku Container Registry skipped"
+            fi
