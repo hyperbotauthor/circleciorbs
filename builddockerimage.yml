@@ -30,22 +30,27 @@ commands:
          name: Build Docker image
          command: docker build -t << parameters.dockeruser >>/<< parameters.dockerrepo >> .
       
-      - run:
-          name: Push to DockerHub
-          command: |
-            if [ << parameters.pushdocker >> ] ; then
-              echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
-              docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
-            else
-              echo "push to Docker Hub skipped"
-            fi
-      - run:
-          name: Push to Heroku
-          command: |
-            if [ << parameters.pushheroku >> ] && ! [ parameters.herokuapp == "" ] ; then
-              echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
-              docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
-              docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
-            else
-              echo "push to Heroku Container Registry skipped"
-            fi
+      - when:
+          condition:
+            - equal: [ << parameters.pushdocker >>, true ]
+          steps:
+            - run:
+                name: Push to DockerHub
+                command: |      
+                  echo "$DOCKERHUB_PASSWORD" | docker login --username << parameters.dockeruser >> --password-stdin
+                  docker push << parameters.dockeruser >>/<< parameters.dockerrepo >>
+      - when:
+          condition:
+            - equal:
+                - and:
+                    - equal: [ << parameters.pushheroku >>, true ]
+                    - not:
+                        - equal:
+                            [ << parameters.herokuapp >>, "" ]
+          steps:
+            - run:
+                name: Push to Heroku
+                command: |            
+                  echo "$HEROKU_API_KEY" | docker login --username=_ registry.heroku.com --password-stdin
+                  docker tag << parameters.dockeruser >>/<< parameters.dockerrepo >> registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>
+                  docker push registry.heroku.com/<< parameters.herokuapp >>/<< parameters.herokuproctype >>            
