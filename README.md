@@ -41,5 +41,5 @@ circleci orb create hyperchessbotauthor/builddockerimage
 ## CircleCI CLI - Publish orb
 
 ```
-circleci orb publish orb.yml hyperchessbotauthor/builddockerimage@1.0.0 --token $CIRCLECI_API_TOKEN
+circleci orb publish builddockerimage.yml hyperchessbotauthor/builddockerimage@1.0.0 --token $CIRCLECI_API_TOKEN
 ```
